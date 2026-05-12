@@ -1,3 +1,4 @@
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GameType, Player } from '@akgames/types';
 import { RoomsService } from './rooms.service.js';
 
@@ -6,11 +7,13 @@ const makePlayer = (socketId: string): Player => ({
   displayName: `Player_${socketId}`,
 });
 
+const mockEmitter = { emit: jest.fn() } as unknown as EventEmitter2;
+
 describe('RoomsService', () => {
   let service: RoomsService;
 
   beforeEach(() => {
-    service = new RoomsService();
+    service = new RoomsService(mockEmitter);
   });
 
   describe('createRoom', () => {
