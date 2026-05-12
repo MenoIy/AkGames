@@ -1,32 +1,90 @@
-async function getServerStatus() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
-  try {
-    const res = await fetch(`${apiUrl}/api`, { cache: 'no-store' });
-    const text = await res.text();
-    return { ok: true, status: res.status, message: text };
-  } catch {
-    return { ok: false, status: 0, message: 'Could not reach server' };
-  }
-}
+'use client';
 
-export default async function Home() {
-  const server = await getServerStatus();
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Gamepad2, HelpCircle, Plus, Wifi, WifiOff } from 'lucide-react';
+import { DisplayNameInput } from '../components/lobby/display-name-input';
+import { RoomCard } from '../components/lobby/room-card';
+import { useDisplayName } from '../hooks/use-display-name';
+import { useLobbySocket } from '../hooks/use-lobby-socket';
+
+export default function HomePage() {
+  const router = useRouter();
+  const { displayName, setDisplayName, loaded } = useDisplayName();
+  const { rooms, connected } = useLobbySocket();
+
+  const handleJoin = (roomId: string) => {
+    if (!displayName) return;
+    router.push(`/game/${roomId}`);
+  };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-      <div className="rounded-2xl border border-zinc-200 bg-white p-10 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <h1 className="mb-6 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-          Server connection
-        </h1>
-        <div className="flex items-center gap-3">
-          <span
-            className={`h-3 w-3 rounded-full ${server.ok ? 'bg-green-500' : 'bg-red-500'}`}
-          />
-          <span className="text-sm text-zinc-600 dark:text-zinc-400">
-            {server.ok ? `HTTP ${server.status} —` : 'Error —'} {server.message}
-          </span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Header */}
+      <header className="bg-slate-900/50 backdrop-blur-sm border-b border-slate-700/50 px-4 py-3">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Gamepad2 className="w-6 h-6 text-purple-400" />
+            <span className="text-white font-bold text-lg">AkGames</span>
+          </div>
+          <div className="flex items-center gap-4">
+            {loaded && <DisplayNameInput displayName={displayName} onSave={setDisplayName} />}
+            <Link
+              href="/help"
+              className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Help
+            </Link>
+          </div>
         </div>
-      </div>
-    </main>
+      </header>
+
+      {/* Main */}
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        {/* Title + Create button */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Game Rooms</h1>
+            <div className="flex items-center gap-1.5 mt-1 text-sm text-slate-400">
+              {connected ? (
+                <>
+                  <Wifi className="w-3.5 h-3.5 text-green-400" />
+                  <span className="text-green-400">Live</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="w-3.5 h-3.5 text-red-400" />
+                  <span className="text-red-400">Connecting…</span>
+                </>
+              )}
+            </div>
+          </div>
+          <button
+            disabled={!displayName}
+            title={!displayName ? 'Set a display name first' : 'Create a new game room'}
+            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-slate-600 disabled:to-slate-600 disabled:text-slate-400 text-white font-medium px-4 py-2 rounded-lg transition-all text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Create Game
+          </button>
+        </div>
+
+        {/* Room list */}
+        {rooms.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+            <Gamepad2 className="w-16 h-16 mb-4 text-slate-600" />
+            <p className="text-lg font-medium">No rooms yet</p>
+            <p className="text-sm mt-1">Create the first game room!</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {rooms.map((room) => (
+              <RoomCard key={room.id} room={room} onClick={handleJoin} />
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
