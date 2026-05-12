@@ -23,7 +23,14 @@
     "postcss": "^8.5.10"
   },
   "lint-staged": {
-    "app/web/**/*.{ts,tsx}": "eslint --fix --config ./app/web/eslint.config.mjs",
-    "app/server/**/*.ts": "eslint --fix --config ./app/server/eslint.config.mjs"
+    "app/web/**/*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix --config ./app/web/eslint.config.mjs"
+    ],
+    "app/server/**/*.ts": [
+      "prettier --write",
+      "eslint --fix --config ./app/server/eslint.config.mjs"
+    ],
+    "**/*.{json,md,css}": "prettier --write"
   }
 }
