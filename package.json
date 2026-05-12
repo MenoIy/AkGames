@@ -1,0 +1,29 @@
+{
+  "name": "akgames",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "prepare": "husky"
+  },
+  "workspaces": [
+    "app/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "turbo": "latest"
+  },
+  "packageManager": "npm@10.0.0",
+  "overrides": {
+    "postcss": "^8.5.10"
+  },
+  "lint-staged": {
+    "app/web/**/*.{ts,tsx}": "eslint --fix --config ./app/web/eslint.config.mjs",
+    "app/server/**/*.ts": "eslint --fix --config ./app/server/eslint.config.mjs"
+  }
+}

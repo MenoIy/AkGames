@@ -1,0 +1,7 @@
+{
+  "extends": "@akgames/typescript-config/nestjs",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": "./"
+  }
+}
