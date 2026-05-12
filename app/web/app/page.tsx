@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Gamepad2, HelpCircle, Plus, Wifi, WifiOff } from 'lucide-react';
+import { CreateRoomModal } from '../components/lobby/create-room-modal';
 import { DisplayNameInput } from '../components/lobby/display-name-input';
 import { RoomCard } from '../components/lobby/room-card';
 import { useDisplayName } from '../hooks/use-display-name';
@@ -10,8 +12,9 @@ import { useLobbySocket } from '../hooks/use-lobby-socket';
 
 export default function HomePage() {
   const router = useRouter();
-  const { displayName, setDisplayName, loaded } = useDisplayName();
+  const { displayName, setDisplayName } = useDisplayName();
   const { rooms, connected } = useLobbySocket();
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleJoin = (roomId: string) => {
     if (!displayName) return;
@@ -28,7 +31,7 @@ export default function HomePage() {
             <span className="text-white font-bold text-lg">AkGames</span>
           </div>
           <div className="flex items-center gap-4">
-            {loaded && <DisplayNameInput displayName={displayName} onSave={setDisplayName} />}
+            <DisplayNameInput displayName={displayName} onSave={setDisplayName} />
             <Link
               href="/help"
               className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
@@ -42,11 +45,10 @@ export default function HomePage() {
 
       {/* Main */}
       <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* Title + Create button */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Game Rooms</h1>
-            <div className="flex items-center gap-1.5 mt-1 text-sm text-slate-400">
+            <div className="flex items-center gap-1.5 mt-1 text-sm">
               {connected ? (
                 <>
                   <Wifi className="w-3.5 h-3.5 text-green-400" />
@@ -61,6 +63,7 @@ export default function HomePage() {
             </div>
           </div>
           <button
+            onClick={() => setModalOpen(true)}
             disabled={!displayName}
             title={!displayName ? 'Set a display name first' : 'Create a new game room'}
             className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-slate-600 disabled:to-slate-600 disabled:text-slate-400 text-white font-medium px-4 py-2 rounded-lg transition-all text-sm"
@@ -85,6 +88,8 @@ export default function HomePage() {
           </div>
         )}
       </main>
+
+      <CreateRoomModal open={modalOpen} onOpenChange={setModalOpen} />
     </div>
   );
 }
