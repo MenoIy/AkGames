@@ -28,6 +28,8 @@
   },
   "devDependencies": {
     "@akgames/eslint-config": "*",
+    "@akgames/events": "*",
+    "@akgames/types": "*",
     "@akgames/typescript-config": "*",
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",

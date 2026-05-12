@@ -5,6 +5,7 @@
   "exports": {
     "./base": "./base.json",
     "./nextjs": "./nextjs.json",
-    "./nestjs": "./nestjs.json"
+    "./nestjs": "./nestjs.json",
+    "./library": "./library.json"
   }
 }

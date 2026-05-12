@@ -16,6 +16,8 @@
   },
   "devDependencies": {
     "@akgames/eslint-config": "*",
+    "@akgames/events": "*",
+    "@akgames/types": "*",
     "@akgames/typescript-config": "*",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
