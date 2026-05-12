@@ -15,9 +15,12 @@
       "persistent": true
     },
     "typecheck": {
+      "dependsOn": ["^build"],
       "outputs": []
     },
-    "lint": {},
+    "lint": {
+      "dependsOn": ["^build"]
+    },
     "test": {
       "dependsOn": ["build"]
     }
