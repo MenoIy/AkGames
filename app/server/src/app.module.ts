@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
+import { RoomsModule } from './rooms/rooms.module.js';
 
 @Module({
   imports: [
@@ -9,6 +10,7 @@ import { AppService } from './app.service';
       isGlobal: true,
       cache: true,
     }),
+    RoomsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
