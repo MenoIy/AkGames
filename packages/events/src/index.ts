@@ -16,6 +16,7 @@ export const SERVER_EVENTS = {
 
   // Game namespace (/game)
   GAME_JOINED: 'game:joined',
+  GAME_PRESENCE: 'game:presence',
 
   // Chat
   CHAT_MESSAGE: 'chat:message',
