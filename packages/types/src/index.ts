@@ -62,6 +62,11 @@ export interface RoomClosedPayload {
   id: string;
 }
 
+export interface GamePresencePayload {
+  players: Player[];
+  spectators: Player[];
+}
+
 export interface ApiResponse<T> {
   data: T;
   message?: string;
