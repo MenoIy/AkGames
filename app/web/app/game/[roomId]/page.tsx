@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Gamepad2 } from 'lucide-react';
+import { ChatPanel } from '../../../components/game/chat-panel';
 import { PlayerSidebar } from '../../../components/game/player-sidebar';
 import { useDisplayName } from '../../../hooks/use-display-name';
 import { useGameSocket } from '../../../hooks/use-game-socket';
@@ -10,7 +11,10 @@ export default function GameRoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
   const router = useRouter();
   const { displayName } = useDisplayName();
-  const { connected, players, spectators, role } = useGameSocket({ roomId, displayName });
+  const { connected, players, spectators, messages, role, emit } = useGameSocket({
+    roomId,
+    displayName,
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
@@ -51,9 +55,9 @@ export default function GameRoomPage() {
 
         {/* Right panel: chat + sidebar */}
         <div className="w-72 shrink-0 flex flex-col gap-4">
-          {/* Chat panel placeholder — filled in issue #8 */}
-          <div className="flex-1 bg-slate-800/50 border border-slate-700 rounded-xl p-3 flex items-center justify-center text-slate-600 text-sm">
-            Chat — coming in #8
+          {/* Chat panel */}
+          <div className="flex-1 bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden min-h-0">
+            <ChatPanel messages={messages} emit={emit} />
           </div>
 
           {/* Player sidebar */}

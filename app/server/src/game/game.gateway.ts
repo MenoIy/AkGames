@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import type {
   ChatMessage,
+  ChatSendPayload,
   GameJoinPayload,
   GameJoinedPayload,
   GamePresencePayload,
@@ -37,6 +38,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     string,
     { timer: NodeJS.Timeout; meta: SocketMeta }
   >();
+  private readonly rateLimits = new Map<string, number>();
+
+  private static readonly MAX_MSG_LEN = 500;
+  private static readonly RATE_LIMIT_MS = 1_000;
 
   constructor(private readonly roomsService: RoomsService) {}
 
@@ -48,6 +53,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const meta = this.socketMeta.get(client.id);
     if (!meta) return;
     this.socketMeta.delete(client.id);
+    this.rateLimits.delete(client.id);
 
     const key = this.disconnectKey(meta.roomId, meta.displayName);
     const timer = setTimeout(() => {
@@ -137,6 +143,30 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     void client.leave(meta.roomId);
     this.broadcastPresence(meta.roomId);
     this.broadcastSystem(meta.roomId, `${meta.displayName} left the room`);
+  }
+
+  @SubscribeMessage(CLIENT_EVENTS.CHAT_SEND)
+  handleChatSend(@MessageBody() payload: ChatSendPayload, @ConnectedSocket() client: Socket): void {
+    const meta = this.socketMeta.get(client.id);
+    if (!meta) throw new WsException('Not in a room');
+
+    const text = payload?.text?.trim();
+    if (!text) throw new WsException('Message cannot be empty');
+    if (text.length > GameGateway.MAX_MSG_LEN) throw new WsException('Message too long');
+
+    const now = Date.now();
+    const lastSent = this.rateLimits.get(client.id) ?? 0;
+    if (now - lastSent < GameGateway.RATE_LIMIT_MS) throw new WsException('Rate limit exceeded');
+    this.rateLimits.set(client.id, now);
+
+    const msg: ChatMessage = {
+      type: 'user',
+      senderName: meta.displayName,
+      role: meta.role,
+      text,
+      timestamp: now,
+    };
+    this.server.to(meta.roomId).emit(SERVER_EVENTS.CHAT_MESSAGE, msg);
   }
 
   private broadcastPresence(roomId: string): void {
